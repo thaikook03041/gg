@@ -493,14 +493,12 @@
             document.getElementById('detailUnit').innerText = p.unit;
             document.getElementById('detailMfg').innerText = p.mfg || '-';
             document.getElementById('qrLabel').innerText = `${p.id}-FLOW-${p.lot || ''}`;
-
+            const productUrl = `${window.location.origin}${window.location.pathname}?id=${encodeURIComponent(p.id)}`;
+            document.getElementById('qrImage').src =
+                `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(productUrl)}`;
             const badge = document.getElementById('detailStatusBadge');
             badge.innerText = p.status;
             badge.className = `px-md py-xs rounded-full text-label-sm font-label-sm border ${getStatusColor(p.status)}`;
-            const productUrl = `${window.location.origin}${window.location.pathname}?id=${encodeURIComponent(p.id)}`;
-
-document.getElementById('qrImage').src =
-    `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(productUrl)}`;
             const editButton = document.querySelector('#view-detail button[onclick="editCurrentStatus()"]');
             if (editButton) editButton.dataset.id = p.id;
 
