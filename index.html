@@ -495,8 +495,15 @@
             document.getElementById('qrLabel').innerText = `${p.id}-FLOW-${p.lot || ''}`;const productUrl =
     window.location.origin +
     window.location.pathname +
-    '?id=' +
-    encodeURIComponent(p.id);
+    '?id=' + encodeURIComponent(p.id) +
+    '&name=' + encodeURIComponent(p.name) +
+    '&category=' + encodeURIComponent(p.category) +
+    '&qty=' + encodeURIComponent(p.qty) +
+    '&unit=' + encodeURIComponent(p.unit) +
+    '&location=' + encodeURIComponent(p.location) +
+    '&lot=' + encodeURIComponent(p.lot || '') +
+    '&status=' + encodeURIComponent(p.status) +
+    '&mfg=' + encodeURIComponent(p.mfg || '');
 
 document.getElementById('qrImage').src =
     'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=' +
@@ -594,13 +601,40 @@ document.getElementById('qrImage').src =
         }
 
         function checkUrlParameters() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const productId = urlParams.get('id');
-            if (productId) {
-                const product = products.find(p => p.id.toUpperCase() === productId.toUpperCase());
-                if (product) showDetail(product.id);
-            }
-        }
+    const urlParams = new URLSearchParams(window.location.search);
+    const productId = urlParams.get('id');
+
+    if (!productId) return;
+
+    let product = products.find(
+        p => p.id.toUpperCase() === productId.toUpperCase()
+    );
+
+    if (product) {
+        showDetail(product.id);
+        return;
+    }
+
+    // ถ้าเครื่องที่สแกนไม่มีสินค้านี้ ให้ใช้ข้อมูลที่มากับ QR
+    if (urlParams.get('name')) {
+        product = {
+            id: productId,
+            name: urlParams.get('name') || '-',
+            category: urlParams.get('category') || '-',
+            qty: urlParams.get('qty') || '0',
+            unit: urlParams.get('unit') || '-',
+            location: urlParams.get('location') || '-',
+            lot: urlParams.get('lot') || '',
+            status: urlParams.get('status') || '-',
+            mfg: urlParams.get('mfg') || '-'
+        };
+
+        products.push(product);
+        saveProducts();
+
+        showDetail(product.id);
+    }
+}
 
         window.onload = () => {
             renderProducts(products);
