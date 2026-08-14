@@ -501,9 +501,6 @@
 document.getElementById('qrImage').src =
     'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=' +
     encodeURIComponent(productUrl);
-            const productUrl = `${window.location.origin}${window.location.pathname}?id=${encodeURIComponent(p.id)}`;
-            document.getElementById('qrImage').src =
-                `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(productUrl)}`;
             const badge = document.getElementById('detailStatusBadge');
             badge.innerText = p.status;
             badge.className = `px-md py-xs rounded-full text-label-sm font-label-sm border ${getStatusColor(p.status)}`;
