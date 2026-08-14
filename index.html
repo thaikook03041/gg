@@ -601,7 +601,146 @@
             renderProducts(products);
             updateStats();
             checkUrlParameters();
-        };
+        };function printStock() {
+    const id = document.getElementById('detailId').innerText;
+    const product = products.find(p => p.id === id);
+
+    if (!product) {
+        alert('ไม่พบข้อมูลสินค้า');
+        return;
+    }
+
+    const printWindow = window.open('', '_blank');
+
+    if (!printWindow) {
+        alert('ไม่สามารถเปิดหน้าพิมพ์ได้ กรุณาอนุญาต Popup ของเว็บไซต์');
+        return;
+    }
+
+    printWindow.document.write(`
+        <!DOCTYPE html>
+        <html lang="th">
+        <head>
+            <meta charset="UTF-8">
+            <title>ใบสต็อกสินค้า - ${product.id}</title>
+
+            <style>
+                body {
+                    font-family: Arial, "Noto Sans Thai", sans-serif;
+                    margin: 40px;
+                    color: #111;
+                }
+
+                .header {
+                    text-align: center;
+                    margin-bottom: 30px;
+                }
+
+                h1 {
+                    margin-bottom: 8px;
+                }
+
+                table {
+                    width: 100%;
+                    border-collapse: collapse;
+                }
+
+                th, td {
+                    border: 1px solid #333;
+                    padding: 12px;
+                }
+
+                th {
+                    width: 35%;
+                    text-align: left;
+                    background: #f2f2f2;
+                }
+
+                .signature {
+                    margin-top: 70px;
+                    display: flex;
+                    justify-content: space-between;
+                }
+
+                .print-btn {
+                    margin-top: 30px;
+                    padding: 10px 20px;
+                    font-size: 16px;
+                    cursor: pointer;
+                }
+
+                @media print {
+                    .print-btn {
+                        display: none;
+                    }
+                }
+            </style>
+        </head>
+
+        <body>
+
+            <div class="header">
+                <h1>ใบสต็อกสินค้า</h1>
+                <div>การพัฒนาคลังสินค้าด้วยกล่องบรรจุภัณฑ์รหัสสีและ QR Code</div>
+            </div>
+
+            <table>
+                <tr>
+                    <th>รหัสสินค้า</th>
+                    <td>${product.id}</td>
+                </tr>
+
+                <tr>
+                    <th>ชื่อสินค้า</th>
+                    <td>${product.name}</td>
+                </tr>
+
+                <tr>
+                    <th>หมวดหมู่</th>
+                    <td>${product.category}</td>
+                </tr>
+
+                <tr>
+                    <th>จำนวน</th>
+                    <td>${product.qty} ${product.unit}</td>
+                </tr>
+
+                <tr>
+                    <th>Lot</th>
+                    <td>${product.lot || '-'}</td>
+                </tr>
+
+                <tr>
+                    <th>ตำแหน่งจัดเก็บ</th>
+                    <td>${product.location}</td>
+                </tr>
+
+                <tr>
+                    <th>สถานะ</th>
+                    <td>${product.status}</td>
+                </tr>
+
+                <tr>
+                    <th>วันที่ลงทะเบียน</th>
+                    <td>${product.mfg || '-'}</td>
+                </tr>
+            </table>
+
+            <div class="signature">
+                <div>ผู้จัดทำ __________________</div>
+                <div>ผู้ตรวจสอบ __________________</div>
+            </div>
+
+            <button class="print-btn" onclick="window.print()">
+                🖨 พิมพ์ / Save as PDF
+            </button>
+
+        </body>
+        </html>
+    `);
+
+    printWindow.document.close();
+}
 
         const style = document.createElement('style');
         style.textContent = `
