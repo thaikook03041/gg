@@ -492,15 +492,7 @@
             document.getElementById('detailQty').innerText = p.qty;
             document.getElementById('detailUnit').innerText = p.unit;
             document.getElementById('detailMfg').innerText = p.mfg || '-';
-            document.getElementById('qrLabel').innerText = `${p.id}-FLOW-${p.lot || ''}`;const productUrl =
-    window.location.origin +
-    window.location.pathname +
-    '?id=' +
-    encodeURIComponent(p.id);
-
-document.getElementById('qrImage').src =
-    'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=' +
-    encodeURIComponent(productUrl);
+            document.getElementById('qrLabel').innerText = `${p.id}-FLOW-${p.lot || ''}`;
             const productUrl = `${window.location.origin}${window.location.pathname}?id=${encodeURIComponent(p.id)}`;
             document.getElementById('qrImage').src =
                 `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(productUrl)}`;
