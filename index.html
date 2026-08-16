@@ -251,7 +251,11 @@
 </button>
 <button onclick="editCurrentStatus()" class="w-full border border-primary text-primary py-sm rounded-lg font-title-md flex justify-center items-center gap-sm hover:bg-primary/5 active:scale-[0.98] transition-all">
 <span class="material-symbols-outlined">edit</span> เปลี่ยนสถานะ
-                            </button>
+                            </button><button onclick="deleteCurrentProduct()"
+    class="w-full border border-red-500 text-red-500 py-sm rounded-lg font-title-md flex justify-center items-center gap-sm hover:bg-red-50 active:scale-[0.98] transition-all">
+    <span class="material-symbols-outlined">delete</span>
+    ลบสินค้า
+</button>
 </div>
 </div>
 </div>
@@ -564,7 +568,32 @@ document.getElementById('qrImage').src =
             alert(`เพิ่มสินค้า ${id} สำเร็จ`);
         }
 
-        function editCurrentStatus() {
+       function deleteCurrentProduct() {
+    const id = document.getElementById('detailId').innerText;
+
+    const product = products.find(p => p.id === id);
+
+    if (!product) {
+        alert('ไม่พบข้อมูลสินค้า');
+        return;
+    }
+
+    const confirmDelete = confirm(
+        `ต้องการลบสินค้า ${product.id} - ${product.name} ใช่หรือไม่?`
+    );
+
+    if (!confirmDelete) return;
+
+    products = products.filter(p => p.id !== id);
+
+    saveProducts();
+    updateStats();
+    filterProducts();
+
+    alert(`ลบสินค้า ${id} เรียบร้อยแล้ว`);
+
+    switchView('view-list');
+} function editCurrentStatus() {
             const id = document.getElementById('detailId').innerText;
             const p = products.find(prod => prod.id === id);
             if (!p) return;
