@@ -740,7 +740,7 @@ function saveEditedProduct(event) {
     alert(`แก้ไขข้อมูลสินค้า ${p.id} สำเร็จ`);
 }
 
-function editCurrentStatus() {} function editCurrentStatus() {
+ function editCurrentStatus() {
             const id = document.getElementById('detailId').innerText;
             const p = products.find(prod => prod.id === id);
             if (!p) return;
