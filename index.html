@@ -815,7 +815,7 @@ function saveEditedProduct(event) {
         window.onload = () => {
             renderProducts(products);
             updateStats();
-            checkUrlParameters();
+            checkUrlParameters(); };
         };function printStock() {
     const id = document.getElementById('detailId').innerText;
     const product = products.find(p => p.id === id);
