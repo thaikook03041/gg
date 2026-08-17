@@ -250,7 +250,11 @@
     <span class="material-symbols-outlined">print</span> พิมพ์ใบสต็อก
 </button>
 <button onclick="editCurrentStatus()" class="w-full border border-primary text-primary py-sm rounded-lg font-title-md flex justify-center items-center gap-sm hover:bg-primary/5 active:scale-[0.98] transition-all">
-<span class="material-symbols-outlined">edit</span> เปลี่ยนสถานะ
+<span class="material-symbols-outlined">edit</span> เปลี่ยนสถานะ<button onclick="editProductInfo()"
+    class="w-full border border-primary text-primary py-sm rounded-lg font-title-md flex justify-center items-center gap-sm hover:bg-primary/5 active:scale-[0.98] transition-all">
+    <span class="material-symbols-outlined">edit_note</span>
+    แก้ไขข้อมูลสินค้า
+</button>
                             </button><button onclick="deleteCurrentProduct()"
     class="w-full border border-red-500 text-red-500 py-sm rounded-lg font-title-md flex justify-center items-center gap-sm hover:bg-red-50 active:scale-[0.98] transition-all">
     <span class="material-symbols-outlined">delete</span>
@@ -350,6 +354,93 @@
       </div>
     </form>
   </div>
+</div><!-- EDIT PRODUCT MODAL -->
+<div id="editProductModal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/40 backdrop-blur-sm p-md">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+
+        <div class="p-lg border-b border-outline-variant flex items-center justify-between">
+            <div>
+                <h2 class="font-headline-lg text-headline-lg">แก้ไขข้อมูลสินค้า</h2>
+                <p class="text-body-sm text-on-surface-variant">แก้ไขข้อมูลสินค้าที่ต้องการ</p>
+            </div>
+
+            <button onclick="closeEditProductModal()" class="p-xs rounded-full hover:bg-surface-container">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+
+        <form onsubmit="saveEditedProduct(event)" class="p-lg space-y-md">
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-md">
+
+                <div>
+                    <label class="block text-label-sm font-label-sm mb-xs">รหัสสินค้า</label>
+                    <input id="editProductId"
+                        readonly
+                        class="w-full border border-outline-variant rounded-lg px-md py-sm bg-gray-100">
+                </div>
+
+                <div>
+                    <label class="block text-label-sm font-label-sm mb-xs">ชื่อสินค้า *</label>
+                    <input id="editProductName"
+                        required
+                        class="w-full border border-outline-variant rounded-lg px-md py-sm">
+                </div>
+
+                <div>
+                    <label class="block text-label-sm font-label-sm mb-xs">หมวดหมู่ *</label>
+                    <input id="editProductCategory"
+                        required
+                        class="w-full border border-outline-variant rounded-lg px-md py-sm">
+                </div>
+
+                <div>
+                    <label class="block text-label-sm font-label-sm mb-xs">จำนวน *</label>
+                    <input id="editProductQty"
+                        required
+                        min="0"
+                        type="number"
+                        class="w-full border border-outline-variant rounded-lg px-md py-sm">
+                </div>
+
+                <div>
+                    <label class="block text-label-sm font-label-sm mb-xs">หน่วย *</label>
+                    <input id="editProductUnit"
+                        required
+                        class="w-full border border-outline-variant rounded-lg px-md py-sm">
+                </div>
+
+                <div>
+                    <label class="block text-label-sm font-label-sm mb-xs">ตำแหน่งจัดเก็บ *</label>
+                    <input id="editProductLocation"
+                        required
+                        class="w-full border border-outline-variant rounded-lg px-md py-sm">
+                </div>
+
+                <div>
+                    <label class="block text-label-sm font-label-sm mb-xs">Lot *</label>
+                    <input id="editProductLot"
+                        required
+                        class="w-full border border-outline-variant rounded-lg px-md py-sm">
+                </div>
+
+            </div>
+
+            <div class="flex justify-end gap-sm pt-md border-t border-outline-variant">
+                <button type="button"
+                    onclick="closeEditProductModal()"
+                    class="border border-outline-variant px-lg py-sm rounded-lg">
+                    ยกเลิก
+                </button>
+
+                <button type="submit"
+                    class="bg-primary text-on-primary px-lg py-sm rounded-lg font-title-md">
+                    บันทึกการแก้ไข
+                </button>
+            </div>
+
+        </form>
+    </div>
 </div>
 
 <!-- BottomNavBar (Mobile only) -->
@@ -593,7 +684,63 @@ document.getElementById('qrImage').src =
     alert(`ลบสินค้า ${id} เรียบร้อยแล้ว`);
 
     switchView('view-list');
-} function editCurrentStatus() {
+function editProductInfo() {
+    const id = document.getElementById('detailId').innerText;
+
+    const p = products.find(prod => prod.id === id);
+
+    if (!p) {
+        alert('ไม่พบข้อมูลสินค้า');
+        return;
+    }
+
+    document.getElementById('editProductId').value = p.id;
+    document.getElementById('editProductName').value = p.name || '';
+    document.getElementById('editProductCategory').value = p.category || '';
+    document.getElementById('editProductQty').value = p.qty || 0;
+    document.getElementById('editProductUnit').value = p.unit || '';
+    document.getElementById('editProductLocation').value = p.location || '';
+    document.getElementById('editProductLot').value = p.lot || '';
+
+    document.getElementById('editProductModal').classList.remove('hidden');
+    document.getElementById('editProductModal').classList.add('flex');
+}
+
+function closeEditProductModal() {
+    document.getElementById('editProductModal').classList.add('hidden');
+    document.getElementById('editProductModal').classList.remove('flex');
+}
+
+function saveEditedProduct(event) {
+    event.preventDefault();
+
+    const id = document.getElementById('editProductId').value;
+
+    const p = products.find(prod => prod.id === id);
+
+    if (!p) {
+        alert('ไม่พบข้อมูลสินค้า');
+        return;
+    }
+
+    p.name = document.getElementById('editProductName').value.trim();
+    p.category = document.getElementById('editProductCategory').value.trim();
+    p.qty = Number(document.getElementById('editProductQty').value);
+    p.unit = document.getElementById('editProductUnit').value.trim();
+    p.location = document.getElementById('editProductLocation').value.trim();
+    p.lot = document.getElementById('editProductLot').value.trim();
+
+    saveProducts();
+    closeEditProductModal();
+
+    updateStats();
+    filterProducts();
+    showDetail(p.id);
+
+    alert(`แก้ไขข้อมูลสินค้า ${p.id} สำเร็จ`);
+}
+
+function editCurrentStatus() {} function editCurrentStatus() {
             const id = document.getElementById('detailId').innerText;
             const p = products.find(prod => prod.id === id);
             if (!p) return;
