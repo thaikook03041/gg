@@ -536,13 +536,33 @@
             { id: "A020", name: "ขนมปังกรอบ", qty: 12, unit: "ชิ้น", category: "ขนม", location: "C01", status: "ต้องตรวจสอบ", mfg: "01/05/2024", lot: "L020" }
         ];
 
-        let products = JSON.parse(localStorage.getItem('warehouseProducts') || 'null') || defaultProducts;
-        let currentFilter = 'all';
-        let editingProductId = null;
+        const API_URL = 'https://script.google.com/macros/s/AKfycbzKjxa9BijYmS-5mmrsbCy-nuJ_ugkLKhoGlXPY0eYJ3i6Ci_TS0vfo7K6WNRzdW_YhGw/exec';
 
-        function saveProducts() {
-            localStorage.setItem('warehouseProducts', JSON.stringify(products));
+let products = [];
+let currentFilter = 'all';
+let editingProductId = null;
+
+async function loadProducts() {
+    try {
+        const response = await fetch(API_URL);
+        const data = await response.json();
+
+        if (data.success) {
+            products = data.products || [];
+        } else {
+            products = [];
+            alert('ไม่สามารถโหลดข้อมูลจาก Google Sheets ได้');
         }
+    } catch (error) {
+        console.error(error);
+        products = [];
+        alert('เชื่อมต่อ Google Sheets ไม่สำเร็จ');
+    }
+}
+
+function saveProducts() {
+    // ฟังก์ชันนี้จะถูกใช้ส่งข้อมูลไป Google Sheets
+}
 
         function switchView(viewId) {
             document.querySelectorAll('.view-transition').forEach(view => {
@@ -673,7 +693,7 @@ document.getElementById('qrImage').src =
             document.getElementById('addProductModal').classList.remove('flex');
         }
 
-        function saveNewProduct(event) {
+       async function saveNewProduct(event) {
             event.preventDefault();
 
             const id = document.getElementById('newId').value.trim().toUpperCase();
@@ -699,12 +719,34 @@ document.getElementById('qrImage').src =
                 return;
             }
 
-            products.push(product);
-            saveProducts();
-            closeAddProductModal();
-            updateStats();
-            filterProducts();
-            alert(`เพิ่มสินค้า ${id} สำเร็จ`);
+            try {
+    const response = await fetch(API_URL, {
+        method: 'POST',
+        body: JSON.stringify({
+            action: 'add',
+            ...product
+        })
+    });
+
+    const result = await response.json();
+
+    if (!result.success) {
+        alert('เพิ่มสินค้าไม่สำเร็จ');
+        return;
+    }
+
+    products.push(product);
+
+    closeAddProductModal();
+    updateStats();
+    filterProducts();
+
+    alert(`เพิ่มสินค้า ${id} สำเร็จ`);
+
+} catch (error) {
+    console.error(error);
+    alert('ไม่สามารถเชื่อมต่อ Google Sheets ได้');
+}
         }
 
        function deleteCurrentProduct() {
