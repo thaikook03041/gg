@@ -250,7 +250,11 @@
     <span class="material-symbols-outlined">print</span> พิมพ์ใบสต็อก
 </button>
 <button onclick="editCurrentStatus()" class="w-full border border-primary text-primary py-sm rounded-lg font-title-md flex justify-center items-center gap-sm hover:bg-primary/5 active:scale-[0.98] transition-all">
-<span class="material-symbols-outlined">edit</span> เปลี่ยนสถานะ
+<span class="material-symbols-outlined">edit</span> เปลี่ยนสถานะ<button onclick="editProductInfo()"
+    class="w-full border border-primary text-primary py-sm rounded-lg font-title-md flex justify-center items-center gap-sm hover:bg-primary/5 active:scale-[0.98] transition-all">
+    <span class="material-symbols-outlined">edit_note</span>
+    แก้ไขข้อมูลสินค้า
+</button>
                             </button><button onclick="deleteCurrentProduct()"
     class="w-full border border-red-500 text-red-500 py-sm rounded-lg font-title-md flex justify-center items-center gap-sm hover:bg-red-50 active:scale-[0.98] transition-all">
     <span class="material-symbols-outlined">delete</span>
@@ -325,6 +329,141 @@
       </div>
     </form>
   </div>
+</div><!-- EDIT PRODUCT INFO MODAL -->
+<div id="editProductModal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/40 backdrop-blur-sm p-md">
+
+  <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md">
+
+    <div class="p-lg border-b border-outline-variant flex items-center justify-between">
+
+      <h2 class="font-headline-lg text-headline-lg">
+        แก้ไขข้อมูลสินค้า
+      </h2>
+
+      <button
+        type="button"
+        onclick="closeEditProductModal()"
+        class="p-xs rounded-full hover:bg-surface-container">
+
+        <span class="material-symbols-outlined">close</span>
+
+      </button>
+
+    </div>
+
+
+    <form onsubmit="saveEditedProduct(event)" class="p-lg space-y-md">
+
+      <!-- รหัสสินค้า -->
+      <div>
+        <label class="block mb-xs">รหัสสินค้า</label>
+
+        <input
+          id="editProductId"
+          type="text"
+          readonly
+          class="w-full border border-outline-variant rounded-lg px-md py-sm bg-gray-100">
+      </div>
+
+
+      <!-- ชื่อสินค้า -->
+      <div>
+        <label class="block mb-xs">ชื่อสินค้า</label>
+
+        <input
+          id="editProductName"
+          type="text"
+          required
+          class="w-full border border-outline-variant rounded-lg px-md py-sm">
+      </div>
+
+
+      <!-- หมวดหมู่ -->
+      <div>
+        <label class="block mb-xs">หมวดหมู่</label>
+
+        <input
+          id="editProductCategory"
+          type="text"
+          required
+          class="w-full border border-outline-variant rounded-lg px-md py-sm">
+      </div>
+
+
+      <!-- จำนวน -->
+      <div>
+        <label class="block mb-xs">จำนวน</label>
+
+        <input
+          id="editProductQty"
+          type="number"
+          min="0"
+          required
+          class="w-full border border-outline-variant rounded-lg px-md py-sm">
+      </div>
+
+
+      <!-- หน่วย -->
+      <div>
+        <label class="block mb-xs">หน่วย</label>
+
+        <input
+          id="editProductUnit"
+          type="text"
+          required
+          class="w-full border border-outline-variant rounded-lg px-md py-sm">
+      </div>
+
+
+      <!-- ตำแหน่งจัดเก็บ -->
+      <div>
+        <label class="block mb-xs">ตำแหน่งจัดเก็บ</label>
+
+        <input
+          id="editProductLocation"
+          type="text"
+          required
+          class="w-full border border-outline-variant rounded-lg px-md py-sm">
+      </div>
+
+
+      <!-- Lot -->
+      <div>
+        <label class="block mb-xs">Lot</label>
+
+        <input
+          id="editProductLot"
+          type="text"
+          class="w-full border border-outline-variant rounded-lg px-md py-sm">
+      </div>
+
+
+      <!-- ปุ่ม -->
+      <div class="flex justify-end gap-sm pt-md">
+
+        <button
+          type="button"
+          onclick="closeEditProductModal()"
+          class="border border-outline-variant px-lg py-sm rounded-lg">
+
+          ยกเลิก
+
+        </button>
+
+        <button
+          type="submit"
+          class="bg-primary text-on-primary px-lg py-sm rounded-lg font-title-md">
+
+          บันทึกการแก้ไข
+
+        </button>
+
+      </div>
+
+    </form>
+
+  </div>
+
 </div>
 
 <!-- EDIT STATUS MODAL -->
@@ -828,6 +967,90 @@ document.getElementById('qrImage').src =
             .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
             .nav-item.active { color: var(--primary) !important; }
         `;
-        document.head.append(style);
+        document.head.append(style);function editProductInfo() {
+    const idElement = document.getElementById('detailId');
+
+    if (!idElement) {
+        alert('ไม่พบรหัสสินค้า');
+        return;
+    }
+
+    const id = idElement.innerText.trim();
+
+    const product = products.find(function(p) {
+        return p.id === id;
+    });
+
+    if (!product) {
+        alert('ไม่พบข้อมูลสินค้า');
+        return;
+    }
+
+    document.getElementById('editProductId').value = product.id;
+    document.getElementById('editProductName').value = product.name || '';
+    document.getElementById('editProductCategory').value = product.category || '';
+    document.getElementById('editProductQty').value = product.qty || 0;
+    document.getElementById('editProductUnit').value = product.unit || '';
+    document.getElementById('editProductLocation').value = product.location || '';
+    document.getElementById('editProductLot').value = product.lot || '';
+
+    const modal = document.getElementById('editProductModal');
+
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+}
+
+
+function closeEditProductModal() {
+    const modal = document.getElementById('editProductModal');
+
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+}
+
+
+function saveEditedProduct(event) {
+    event.preventDefault();
+
+    const id = document.getElementById('editProductId').value;
+
+    const product = products.find(function(p) {
+        return p.id === id;
+    });
+
+    if (!product) {
+        alert('ไม่พบข้อมูลสินค้า');
+        return;
+    }
+
+    product.name =
+        document.getElementById('editProductName').value.trim();
+
+    product.category =
+        document.getElementById('editProductCategory').value.trim();
+
+    product.qty =
+        Number(document.getElementById('editProductQty').value);
+
+    product.unit =
+        document.getElementById('editProductUnit').value.trim();
+
+    product.location =
+        document.getElementById('editProductLocation').value.trim();
+
+    product.lot =
+        document.getElementById('editProductLot').value.trim();
+
+    saveProducts();
+
+    closeEditProductModal();
+
+    renderProducts(products);
+    updateStats();
+
+    showDetail(product.id);
+
+    alert('แก้ไขข้อมูลสินค้าเรียบร้อยแล้ว');
+}
     </script>
 </body></html>
