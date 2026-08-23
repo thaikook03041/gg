@@ -729,23 +729,14 @@ document.getElementById('qrImage').src =
     }
 
     try {
-        const response = await fetch(API_URL, {
-            method: 'POST',
-            body: JSON.stringify({
-                action: 'add',
-                ...product
-            })
-        });
-
-        const result = await response.json();
-
-        if (!result.success) {
-            alert(
-                'เพิ่มสินค้าไม่สำเร็จ\n' +
-                (result.error || 'ไม่ทราบสาเหตุ')
-            );
-            return;
-        }
+await fetch(API_URL, {
+    method: 'POST',
+    mode: 'no-cors',
+    body: JSON.stringify({
+        action: 'add',
+        ...product
+    })
+});
 
         // เพิ่มเข้าเว็บเพียงครั้งเดียว
         products.push(product);
