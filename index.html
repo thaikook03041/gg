@@ -693,13 +693,13 @@ document.getElementById('qrImage').src =
             document.getElementById('addProductModal').classList.remove('flex');
         }
 
-      async function saveNewProduct(event) {
+     async function saveNewProduct(event) {
     event.preventDefault();
 
     const id = document.getElementById('newId').value.trim().toUpperCase();
 
     const product = {
-        id,
+        id: id,
         name: document.getElementById('newName').value.trim(),
         category: document.getElementById('newCategory').value.trim(),
         qty: Number(document.getElementById('newQty').value),
@@ -729,29 +729,28 @@ document.getElementById('qrImage').src =
     }
 
     try {
-        await fetch(API_URL, {
-    method: 'POST',
-    mode: 'no-cors',
-    body: JSON.stringify({
-        action: 'add',
-        ...product
-    })
-});
+        const response = await fetch(API_URL, {
+            method: 'POST',
+            body: JSON.stringify({
+                action: 'add',
+                ...product
+            })
+        });
 
-products.push(product);
-saveProducts();
+        const result = await response.json();
 
-closeAddProductModal();
-updateStats();
-filterProducts();
+        if (!result.success) {
+            alert(
+                'เพิ่มสินค้าไม่สำเร็จ\n' +
+                (result.error || 'ไม่ทราบสาเหตุ')
+            );
+            return;
+        }
 
-alert(`เพิ่มสินค้า ${id} สำเร็จ`);
-
-       
-        // เพิ่มสินค้าเข้าเว็บหลัง Google Sheets บันทึกสำเร็จ
+        // เพิ่มเข้าเว็บเพียงครั้งเดียว
         products.push(product);
 
-        // เก็บไว้ในเครื่องด้วย
+        // บันทึกข้อมูลในเครื่อง
         saveProducts();
 
         closeAddProductModal();
