@@ -729,45 +729,45 @@ document.getElementById('qrImage').src =
     }
 
     try {
-        const response = await fetch(API_URL, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'text/plain;charset=utf-8'
-            },
-            body: JSON.stringify({
-                action: 'add',
-                ...product
-            })
-        });
+    const response = await fetch(API_URL, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'text/plain;charset=utf-8'
+        },
+        body: JSON.stringify({
+            action: 'add',
+            ...product
+        })
+    });
 
-        const result = await response.json();
+    const result = await response.json();
 
-        if (!result.success) {
-            alert(
-                'เพิ่มสินค้าไม่สำเร็จ\n' +
-                (result.error || 'ไม่ทราบสาเหตุ')
-            );
-            return;
-        }
-
-        products.push(product);
-        saveProducts();
-
-        closeAddProductModal();
-        updateStats();
-        filterProducts();
-
-        alert(`เพิ่มสินค้า ${id} สำเร็จ และบันทึกลง Google Sheets แล้ว`);
-
-    } catch (error) {
-        console.error('Google Sheets Error:', error);
-
+    if (!result.success) {
         alert(
-            'ไม่สามารถเชื่อมต่อ Google Sheets ได้\n\n' +
-            error.message
+            'เพิ่มสินค้าไม่สำเร็จ\n' +
+            (result.error || 'ไม่ทราบสาเหตุ')
         );
+        return;
     }
+
+    products.push(product);
+    saveProducts();
+
+    closeAddProductModal();
+    updateStats();
+    filterProducts();
+
+    alert(`เพิ่มสินค้า ${id} สำเร็จ และบันทึกลง Google Sheets แล้ว`);
+
+} catch (error) {
+    console.error('Google Sheets Error:', error);
+
+    alert(
+        'ไม่สามารถเชื่อมต่อ Google Sheets ได้\n\n' +
+        error.message
+    );
 }
+
     } catch (error) {
         console.error('Google Sheets Error:', error);
 
