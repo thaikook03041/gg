@@ -741,16 +741,10 @@ document.getElementById('qrImage').src =
             '&mfg=' + encodeURIComponent(product.mfg) +
             '&status=' + encodeURIComponent(product.status);
 
-        const response = await fetch(url);
-const result = await response.json();
-
-if (!result.success) {
-    alert(
-        'เพิ่มสินค้าไม่สำเร็จ\n' +
-        (result.error || 'ไม่ทราบสาเหตุ')
-    );
-    return;
-}
+        await fetch(url, {
+    method: 'GET',
+    mode: 'no-cors'
+});
 
         products.push(product);
 
