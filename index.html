@@ -713,7 +713,6 @@ document.getElementById('qrImage').src =
         status: document.getElementById('newStatus').value
     };
 
-    // ตรวจข้อมูล
     if (
         !id ||
         !product.name ||
@@ -725,13 +724,11 @@ document.getElementById('qrImage').src =
         return;
     }
 
-    // ตรวจรหัสซ้ำ
     if (products.some(p => p.id.toUpperCase() === id)) {
         alert('รหัสสินค้านี้มีอยู่แล้ว กรุณาใช้รหัสอื่น');
         return;
     }
 
-    // สร้าง URL สำหรับส่งไป Google Sheets
     const url =
         API_URL +
         '?action=add' +
@@ -745,48 +742,31 @@ document.getElementById('qrImage').src =
         '&mfg=' + encodeURIComponent(product.mfg) +
         '&status=' + encodeURIComponent(product.status);
 
-    try {
+    // เปิด URL ใน iframe เพื่อให้ Browser ส่ง GET ไป Apps Script
+    const iframe = document.createElement('iframe');
 
-        // ส่งข้อมูลไป Google Apps Script
-        // ไม่ใช้ fetch เพราะ GitHub Pages มีปัญหา CORS
-        await new Promise((resolve) => {
+    iframe.style.display = 'none';
+    iframe.src = url;
 
-            const img = new Image();
+    document.body.appendChild(iframe);
 
-            img.onload = resolve;
-            img.onerror = resolve;
+    // รอให้ Apps Script ประมวลผล
+    await new Promise(resolve => setTimeout(resolve, 2000));
 
-            img.src = url + '&_=' + Date.now();
+    document.body.removeChild(iframe);
 
-            // กันกรณี Google ใช้เวลาตอบกลับนาน
-            setTimeout(resolve, 3000);
-        });
+    // เพิ่มข้อมูลเข้าเว็บ
+    products.push(product);
 
-        // เพิ่มสินค้าเข้าเว็บ
-        products.push(product);
+    saveProducts();
+    closeAddProductModal();
+    updateStats();
+    filterProducts();
 
-        // บันทึกข้อมูลในเครื่อง
-        saveProducts();
-
-        // อัปเดตหน้าเว็บ
-        closeAddProductModal();
-        updateStats();
-        filterProducts();
-
-        alert(
-            `เพิ่มสินค้า ${id} สำเร็จ\n` +
-            'ส่งข้อมูลไป Google Sheets แล้ว'
-        );
-
-    } catch (error) {
-
-        console.error('Google Sheets Error:', error);
-
-        alert(
-            'ไม่สามารถส่งข้อมูลไป Google Sheets ได้\n\n' +
-            error.message
-        );
-    }
+    alert(
+        `เพิ่มสินค้า ${id} สำเร็จ\n` +
+        'ส่งข้อมูลไป Google Sheets แล้ว'
+    );
 }
        function deleteCurrentProduct() {
     const id = document.getElementById('detailId').innerText;
