@@ -692,7 +692,8 @@ document.getElementById('qrImage').src =
             document.getElementById('addProductModal').classList.remove('flex');
         }
 
-   async function saveNewProduct(event) {
+   ```javascript
+async function saveNewProduct(event) {
     event.preventDefault();
 
     const id = document.getElementById('newId').value.trim().toUpperCase();
@@ -715,7 +716,6 @@ document.getElementById('qrImage').src =
         status: document.getElementById('newStatus').value
     };
 
-
     // ตรวจข้อมูล
     if (
         !id ||
@@ -728,7 +728,6 @@ document.getElementById('qrImage').src =
         return;
     }
 
-
     // ตรวจรหัสซ้ำ
     if (
         products.some(
@@ -739,8 +738,7 @@ document.getElementById('qrImage').src =
         return;
     }
 
-
-    // สร้าง URL ส่งไป Google Sheets
+    // สร้าง URL สำหรับ Google Sheets
     const url =
         API_URL +
         '?action=add' +
@@ -754,23 +752,20 @@ document.getElementById('qrImage').src =
         '&mfg=' + encodeURIComponent(product.mfg) +
         '&status=' + encodeURIComponent(product.status);
 
-
     try {
-
         // ส่งข้อมูลไป Google Apps Script
         const img = new Image();
         img.src = url;
 
-        // รอให้คำขอถูกส่ง
+        // รอให้ Browser ส่งคำขอ
         await new Promise(resolve => {
             setTimeout(resolve, 1500);
         });
 
-
         // เพิ่มสินค้าเข้าเว็บ
         products.push(product);
 
-        // บันทึกข้อมูลในเครื่อง
+        // บันทึกในเครื่อง
         saveProducts();
 
         // อัปเดตหน้าเว็บ
@@ -784,7 +779,6 @@ document.getElementById('qrImage').src =
         );
 
     } catch (error) {
-
         console.error(
             'Google Sheets Error:',
             error
@@ -808,6 +802,8 @@ function saveProducts() {
         JSON.stringify(products)
     );
 }
+```
+
 
     switchView('view-list');
 } function editCurrentStatus() {
