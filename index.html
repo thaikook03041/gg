@@ -742,13 +742,13 @@ document.getElementById('qrImage').src =
             '&status=' + encodeURIComponent(product.status);
 
         await fetch(url, {
-    method: 'GET',
-    mode: 'no-cors'
-});
+            method: 'GET',
+            mode: 'no-cors'
+        });
 
         products.push(product);
-        saveProducts();
 
+        saveProducts();
         closeAddProductModal();
         updateStats();
         filterProducts();
