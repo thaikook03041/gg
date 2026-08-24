@@ -706,11 +706,14 @@ document.getElementById('qrImage').src =
         location: document.getElementById('newLocation').value.trim(),
         lot: document.getElementById('newLot').value.trim(),
         mfg: document.getElementById('newMfg').value
-            ? new Date(document.getElementById('newMfg').value).toLocaleDateString('th-TH')
+            ? new Date(
+                document.getElementById('newMfg').value
+              ).toLocaleDateString('th-TH')
             : '-',
         status: document.getElementById('newStatus').value
     };
 
+    // ตรวจข้อมูล
     if (
         !id ||
         !product.name ||
@@ -722,42 +725,65 @@ document.getElementById('qrImage').src =
         return;
     }
 
+    // ตรวจรหัสซ้ำ
     if (products.some(p => p.id.toUpperCase() === id)) {
         alert('รหัสสินค้านี้มีอยู่แล้ว กรุณาใช้รหัสอื่น');
         return;
     }
 
+    // สร้าง URL สำหรับส่งไป Google Sheets
+    const url =
+        API_URL +
+        '?action=add' +
+        '&id=' + encodeURIComponent(product.id) +
+        '&name=' + encodeURIComponent(product.name) +
+        '&category=' + encodeURIComponent(product.category) +
+        '&qty=' + encodeURIComponent(product.qty) +
+        '&unit=' + encodeURIComponent(product.unit) +
+        '&location=' + encodeURIComponent(product.location) +
+        '&lot=' + encodeURIComponent(product.lot) +
+        '&mfg=' + encodeURIComponent(product.mfg) +
+        '&status=' + encodeURIComponent(product.status);
+
     try {
-        const url =
-            API_URL +
-            '?action=add' +
-            '&id=' + encodeURIComponent(product.id) +
-            '&name=' + encodeURIComponent(product.name) +
-            '&category=' + encodeURIComponent(product.category) +
-            '&qty=' + encodeURIComponent(product.qty) +
-            '&unit=' + encodeURIComponent(product.unit) +
-            '&location=' + encodeURIComponent(product.location) +
-            '&lot=' + encodeURIComponent(product.lot) +
-            '&mfg=' + encodeURIComponent(product.mfg) +
-            '&status=' + encodeURIComponent(product.status);
 
-        console.log('URL ที่ส่งไป Google Sheets:', url);
-alert(url);
+        // ส่งข้อมูลไป Google Apps Script
+        // ไม่ใช้ fetch เพราะ GitHub Pages มีปัญหา CORS
+        await new Promise((resolve) => {
 
+            const img = new Image();
+
+            img.onload = resolve;
+            img.onerror = resolve;
+
+            img.src = url + '&_=' + Date.now();
+
+            // กันกรณี Google ใช้เวลาตอบกลับนาน
+            setTimeout(resolve, 3000);
+        });
+
+        // เพิ่มสินค้าเข้าเว็บ
         products.push(product);
 
+        // บันทึกข้อมูลในเครื่อง
         saveProducts();
+
+        // อัปเดตหน้าเว็บ
         closeAddProductModal();
         updateStats();
         filterProducts();
 
-        alert(`เพิ่มสินค้า ${id} สำเร็จ และบันทึกลง Google Sheets แล้ว`);
+        alert(
+            `เพิ่มสินค้า ${id} สำเร็จ\n` +
+            'ส่งข้อมูลไป Google Sheets แล้ว'
+        );
 
     } catch (error) {
+
         console.error('Google Sheets Error:', error);
 
         alert(
-            'ไม่สามารถเชื่อมต่อ Google Sheets ได้\n\n' +
+            'ไม่สามารถส่งข้อมูลไป Google Sheets ได้\n\n' +
             error.message
         );
     }
