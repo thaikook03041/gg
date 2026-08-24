@@ -693,6 +693,7 @@ document.getElementById('qrImage').src =
         }
 
    ```javascript
+```javascript
 async function saveNewProduct(event) {
     event.preventDefault();
 
@@ -716,6 +717,7 @@ async function saveNewProduct(event) {
         status: document.getElementById('newStatus').value
     };
 
+
     // ตรวจข้อมูล
     if (
         !id ||
@@ -728,6 +730,7 @@ async function saveNewProduct(event) {
         return;
     }
 
+
     // ตรวจรหัสซ้ำ
     if (
         products.some(
@@ -738,7 +741,8 @@ async function saveNewProduct(event) {
         return;
     }
 
-    // สร้าง URL สำหรับ Google Sheets
+
+    // สร้าง URL สำหรับส่งข้อมูลไป Google Sheets
     const url =
         API_URL +
         '?action=add' +
@@ -752,20 +756,24 @@ async function saveNewProduct(event) {
         '&mfg=' + encodeURIComponent(product.mfg) +
         '&status=' + encodeURIComponent(product.status);
 
+
     try {
+
         // ส่งข้อมูลไป Google Apps Script
         const img = new Image();
         img.src = url;
+
 
         // รอให้ Browser ส่งคำขอ
         await new Promise(resolve => {
             setTimeout(resolve, 1500);
         });
 
+
         // เพิ่มสินค้าเข้าเว็บ
         products.push(product);
 
-        // บันทึกในเครื่อง
+        // บันทึกข้อมูลในเครื่อง
         saveProducts();
 
         // อัปเดตหน้าเว็บ
@@ -773,12 +781,15 @@ async function saveNewProduct(event) {
         updateStats();
         filterProducts();
 
+
         alert(
             `เพิ่มสินค้า ${id} สำเร็จ\n\n` +
             'ส่งข้อมูลไป Google Sheets แล้ว'
         );
 
+
     } catch (error) {
+
         console.error(
             'Google Sheets Error:',
             error
@@ -797,86 +808,196 @@ async function saveNewProduct(event) {
 // ========================================
 
 function saveProducts() {
+
     localStorage.setItem(
         'products',
         JSON.stringify(products)
     );
 }
-```
 
 
-    switchView('view-list');
-} function editCurrentStatus() {
-            const id = document.getElementById('detailId').innerText;
-            const p = products.find(prod => prod.id === id);
-            if (!p) return;
+// ========================================
+// แก้ไขสถานะสินค้า
+// ========================================
 
-            editingProductId = id;
-            document.getElementById('editStatusProductName').innerText = `${p.id} - ${p.name}`;
-            document.getElementById('editStatusValue').value = p.status;
-            document.getElementById('editStatusModal').classList.remove('hidden');
-            document.getElementById('editStatusModal').classList.add('flex');
-        }
+function editCurrentStatus() {
 
-        function closeEditStatusModal() {
-            document.getElementById('editStatusModal').classList.add('hidden');
-            document.getElementById('editStatusModal').classList.remove('flex');
-            editingProductId = null;
-        }
+    const id =
+        document.getElementById('detailId').innerText;
 
-        function saveStatus(event) {
-            event.preventDefault();
-            const p = products.find(prod => prod.id === editingProductId);
-            if (!p) return;
+    const p =
+        products.find(
+            prod => prod.id === id
+        );
 
-            p.status = document.getElementById('editStatusValue').value;
-            saveProducts();
-            closeEditStatusModal();
-            updateStats();
-            showDetail(p.id);
-            filterProducts();
-        }
+    if (!p) return;
 
-        function updateStats() {
-            const readyCount = products.filter(p => p.status === 'พร้อมจัดส่ง').length;
-            document.getElementById('readyCount').innerText = readyCount;
-        }
+    editingProductId = id;
 
-        function checkUrlParameters() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const productId = urlParams.get('id');
+    document.getElementById(
+        'editStatusProductName'
+    ).innerText =
+        `${p.id} - ${p.name}`;
+
+    document.getElementById(
+        'editStatusValue'
+    ).value =
+        p.status;
+
+    document.getElementById(
+        'editStatusModal'
+    ).classList.remove('hidden');
+
+    document.getElementById(
+        'editStatusModal'
+    ).classList.add('flex');
+}
+
+
+// ========================================
+// ปิดหน้าต่างแก้ไขสถานะ
+// ========================================
+
+function closeEditStatusModal() {
+
+    document.getElementById(
+        'editStatusModal'
+    ).classList.add('hidden');
+
+    document.getElementById(
+        'editStatusModal'
+    ).classList.remove('flex');
+
+    editingProductId = null;
+}
+
+
+// ========================================
+// บันทึกสถานะ
+// ========================================
+
+function saveStatus(event) {
+
+    event.preventDefault();
+
+    const p =
+        products.find(
+            prod => prod.id === editingProductId
+        );
+
+    if (!p) return;
+
+    p.status =
+        document.getElementById(
+            'editStatusValue'
+        ).value;
+
+    saveProducts();
+
+    closeEditStatusModal();
+
+    updateStats();
+
+    showDetail(p.id);
+
+    filterProducts();
+}
+
+
+// ========================================
+// อัปเดตจำนวนสินค้าพร้อมจัดส่ง
+// ========================================
+
+function updateStats() {
+
+    const readyCount =
+        products.filter(
+            p => p.status === 'พร้อมจัดส่ง'
+        ).length;
+
+    document.getElementById(
+        'readyCount'
+    ).innerText =
+        readyCount;
+}
+
+
+// ========================================
+// ตรวจสอบข้อมูลจาก QR Code / URL
+// ========================================
+
+function checkUrlParameters() {
+
+    const urlParams =
+        new URLSearchParams(
+            window.location.search
+        );
+
+    const productId =
+        urlParams.get('id');
 
     if (!productId) return;
 
-    let product = products.find(
-        p => p.id.toUpperCase() === productId.toUpperCase()
-    );
+
+    let product =
+        products.find(
+            p =>
+                String(p.id).toUpperCase() ===
+                productId.toUpperCase()
+        );
+
 
     if (product) {
+
         showDetail(product.id);
+
         return;
     }
 
-    // ถ้าเครื่องที่สแกนไม่มีสินค้านี้ ให้ใช้ข้อมูลที่มากับ QR
+
+    // ถ้าเครื่องที่สแกนไม่มีสินค้านี้
+    // ให้ใช้ข้อมูลที่มากับ QR Code
+
     if (urlParams.get('name')) {
+
         product = {
+
             id: productId,
-            name: urlParams.get('name') || '-',
-            category: urlParams.get('category') || '-',
-            qty: urlParams.get('qty') || '0',
-            unit: urlParams.get('unit') || '-',
-            location: urlParams.get('location') || '-',
-            lot: urlParams.get('lot') || '',
-            status: urlParams.get('status') || '-',
-            mfg: urlParams.get('mfg') || '-'
+
+            name:
+                urlParams.get('name') || '-',
+
+            category:
+                urlParams.get('category') || '-',
+
+            qty:
+                urlParams.get('qty') || '0',
+
+            unit:
+                urlParams.get('unit') || '-',
+
+            location:
+                urlParams.get('location') || '-',
+
+            lot:
+                urlParams.get('lot') || '',
+
+            status:
+                urlParams.get('status') || '-',
+
+            mfg:
+                urlParams.get('mfg') || '-'
         };
 
+
         products.push(product);
+
         saveProducts();
 
         showDetail(product.id);
     }
 }
+```
 
         window.onload = () => {
             renderProducts(products);
