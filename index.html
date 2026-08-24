@@ -741,10 +741,14 @@ document.getElementById('qrImage').src =
             '&mfg=' + encodeURIComponent(product.mfg) +
             '&status=' + encodeURIComponent(product.status);
 
-        await fetch(url, {
-    method: 'GET',
-    mode: 'no-cors'
-});
+        const iframe = document.createElement('iframe');
+iframe.style.display = 'none';
+iframe.src = url;
+document.body.appendChild(iframe);
+
+setTimeout(() => {
+    iframe.remove();
+}, 3000);
 
         products.push(product);
 
