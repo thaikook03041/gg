@@ -693,7 +693,7 @@ document.getElementById('qrImage').src =
             document.getElementById('addProductModal').classList.remove('flex');
         }
 
-     async function saveNewProduct(event) {
+    async function saveNewProduct(event) {
     event.preventDefault();
 
     const id = document.getElementById('newId').value.trim().toUpperCase();
@@ -729,17 +729,20 @@ document.getElementById('qrImage').src =
     }
 
     try {
-        const response = await fetch(API_URL, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'text/plain;charset=utf-8'
-            },
-            body: JSON.stringify({
-                action: 'add',
-                ...product
-            })
-        });
+        const url =
+            API_URL +
+            '?action=add' +
+            '&id=' + encodeURIComponent(product.id) +
+            '&name=' + encodeURIComponent(product.name) +
+            '&category=' + encodeURIComponent(product.category) +
+            '&qty=' + encodeURIComponent(product.qty) +
+            '&unit=' + encodeURIComponent(product.unit) +
+            '&location=' + encodeURIComponent(product.location) +
+            '&lot=' + encodeURIComponent(product.lot) +
+            '&mfg=' + encodeURIComponent(product.mfg) +
+            '&status=' + encodeURIComponent(product.status);
 
+        const response = await fetch(url);
         const result = await response.json();
 
         if (!result.success) {
