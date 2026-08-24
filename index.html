@@ -692,7 +692,7 @@ document.getElementById('qrImage').src =
             document.getElementById('addProductModal').classList.remove('flex');
         }
 
-    async function saveNewProduct(event) {
+   async function saveNewProduct(event) {
     event.preventDefault();
 
     const id = document.getElementById('newId').value.trim().toUpperCase();
@@ -705,14 +705,18 @@ document.getElementById('qrImage').src =
         unit: document.getElementById('newUnit').value.trim(),
         location: document.getElementById('newLocation').value.trim(),
         lot: document.getElementById('newLot').value.trim(),
+
         mfg: document.getElementById('newMfg').value
             ? new Date(
                 document.getElementById('newMfg').value
-              ).toLocaleDateString('th-TH')
+            ).toLocaleDateString('th-TH')
             : '-',
+
         status: document.getElementById('newStatus').value
     };
 
+
+    // ตรวจข้อมูล
     if (
         !id ||
         !product.name ||
@@ -724,82 +728,86 @@ document.getElementById('qrImage').src =
         return;
     }
 
-    if (products.some(p => p.id.toUpperCase() === id)) {
+
+    // ตรวจรหัสซ้ำ
+    if (
+        products.some(
+            p => String(p.id).toUpperCase() === id
+        )
+    ) {
         alert('รหัสสินค้านี้มีอยู่แล้ว กรุณาใช้รหัสอื่น');
         return;
     }
 
-    const params = new URLSearchParams({
-        action: 'add',
-        id: product.id,
-        name: product.name,
-        category: product.category,
-        qty: product.qty,
-        unit: product.unit,
-        location: product.location,
-        lot: product.lot,
-        mfg: product.mfg,
-        status: product.status
-    });
 
-    const form = document.createElement('form');
+    // สร้าง URL ส่งไป Google Sheets
+    const url =
+        API_URL +
+        '?action=add' +
+        '&id=' + encodeURIComponent(product.id) +
+        '&name=' + encodeURIComponent(product.name) +
+        '&category=' + encodeURIComponent(product.category) +
+        '&qty=' + encodeURIComponent(product.qty) +
+        '&unit=' + encodeURIComponent(product.unit) +
+        '&location=' + encodeURIComponent(product.location) +
+        '&lot=' + encodeURIComponent(product.lot) +
+        '&mfg=' + encodeURIComponent(product.mfg) +
+        '&status=' + encodeURIComponent(product.status);
 
-    form.method = 'GET';
-    form.action = API_URL + '?' + params.toString();
-    form.target = 'googleSheetsFrame';
-    form.style.display = 'none';
 
-    document.body.appendChild(form);
+    try {
 
-    let frame = document.getElementById('googleSheetsFrame');
+        // ส่งข้อมูลไป Google Apps Script
+        const img = new Image();
+        img.src = url;
 
-    if (!frame) {
-        frame = document.createElement('iframe');
-        frame.id = 'googleSheetsFrame';
-        frame.name = 'googleSheetsFrame';
-        frame.style.display = 'none';
-        document.body.appendChild(frame);
+        // รอให้คำขอถูกส่ง
+        await new Promise(resolve => {
+            setTimeout(resolve, 1500);
+        });
+
+
+        // เพิ่มสินค้าเข้าเว็บ
+        products.push(product);
+
+        // บันทึกข้อมูลในเครื่อง
+        saveProducts();
+
+        // อัปเดตหน้าเว็บ
+        closeAddProductModal();
+        updateStats();
+        filterProducts();
+
+        alert(
+            `เพิ่มสินค้า ${id} สำเร็จ\n\n` +
+            'ส่งข้อมูลไป Google Sheets แล้ว'
+        );
+
+    } catch (error) {
+
+        console.error(
+            'Google Sheets Error:',
+            error
+        );
+
+        alert(
+            'ไม่สามารถส่งข้อมูลไป Google Sheets ได้\n\n' +
+            error.message
+        );
     }
-
-    form.submit();
-
-    setTimeout(() => {
-        form.remove();
-    }, 3000);
-
-    // เพิ่มข้อมูลในหน้าเว็บ
-    products.push(product);
-
-    saveProducts();
-    closeAddProductModal();
-    updateStats();
-    filterProducts();
-
-    alert(`เพิ่มสินค้า ${id} สำเร็จ`);
 }
-       function deleteCurrentProduct() {
-    const id = document.getElementById('detailId').innerText;
 
-    const product = products.find(p => p.id === id);
 
-    if (!product) {
-        alert('ไม่พบข้อมูลสินค้า');
-        return;
-    }
+// ========================================
+// บันทึกข้อมูลสินค้าในเครื่อง
+// ========================================
 
-    const confirmDelete = confirm(
-        `ต้องการลบสินค้า ${product.id} - ${product.name} ใช่หรือไม่?`
+function saveProducts() {
+    localStorage.setItem(
+        'products',
+        JSON.stringify(products)
     );
-
-    if (!confirmDelete) return;
-
-    products = products.filter(p => p.id !== id);
-
-    saveProducts();
-    updateStats();
-    filterProducts();
-
-    alert(`ลบสินค้า ${id} เรียบร้อยแล้ว`);
+}
 
     switchView('view-list');
 } function editCurrentStatus() {
