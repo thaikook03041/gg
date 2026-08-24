@@ -729,33 +729,45 @@ document.getElementById('qrImage').src =
         return;
     }
 
-    const url =
-        API_URL +
-        '?action=add' +
-        '&id=' + encodeURIComponent(product.id) +
-        '&name=' + encodeURIComponent(product.name) +
-        '&category=' + encodeURIComponent(product.category) +
-        '&qty=' + encodeURIComponent(product.qty) +
-        '&unit=' + encodeURIComponent(product.unit) +
-        '&location=' + encodeURIComponent(product.location) +
-        '&lot=' + encodeURIComponent(product.lot) +
-        '&mfg=' + encodeURIComponent(product.mfg) +
-        '&status=' + encodeURIComponent(product.status);
+    const params = new URLSearchParams({
+        action: 'add',
+        id: product.id,
+        name: product.name,
+        category: product.category,
+        qty: product.qty,
+        unit: product.unit,
+        location: product.location,
+        lot: product.lot,
+        mfg: product.mfg,
+        status: product.status
+    });
 
-    // เปิด URL ใน iframe เพื่อให้ Browser ส่ง GET ไป Apps Script
-    const iframe = document.createElement('iframe');
+    const form = document.createElement('form');
 
-    iframe.style.display = 'none';
-    iframe.src = url;
+    form.method = 'GET';
+    form.action = API_URL + '?' + params.toString();
+    form.target = 'googleSheetsFrame';
+    form.style.display = 'none';
 
-    document.body.appendChild(iframe);
+    document.body.appendChild(form);
 
-    // รอให้ Apps Script ประมวลผล
-    await new Promise(resolve => setTimeout(resolve, 2000));
+    let frame = document.getElementById('googleSheetsFrame');
 
-    document.body.removeChild(iframe);
+    if (!frame) {
+        frame = document.createElement('iframe');
+        frame.id = 'googleSheetsFrame';
+        frame.name = 'googleSheetsFrame';
+        frame.style.display = 'none';
+        document.body.appendChild(frame);
+    }
 
-    // เพิ่มข้อมูลเข้าเว็บ
+    form.submit();
+
+    setTimeout(() => {
+        form.remove();
+    }, 3000);
+
+    // เพิ่มข้อมูลในหน้าเว็บ
     products.push(product);
 
     saveProducts();
@@ -763,10 +775,7 @@ document.getElementById('qrImage').src =
     updateStats();
     filterProducts();
 
-    alert(
-        `เพิ่มสินค้า ${id} สำเร็จ\n` +
-        'ส่งข้อมูลไป Google Sheets แล้ว'
-    );
+    alert(`เพิ่มสินค้า ${id} สำเร็จ`);
 }
        function deleteCurrentProduct() {
     const id = document.getElementById('detailId').innerText;
